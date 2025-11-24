@@ -11,8 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class JarFlow {
 
@@ -73,6 +76,77 @@ public class JarFlow {
             }
             loaded.add(dependency2);
         }
+    }
+    
+    public static List<Class<?>> searchClasses(String prefix) throws IOException, ClassNotFoundException {
+        List<Class<?>> classes = new ArrayList<>();
+        for (Dependency dependency : dependencies.keySet()) {
+            String fileName = dependency.getArtifactId() + "-" + dependency.getVersion();
+            Path path = libDir.toPath()
+                    .resolve(dependency.getGroupId())
+                    .resolve(dependency.getArtifactId())
+                    .resolve(dependency.getVersion())
+                    .resolve(fileName + ".jar");
+            if (!path.toFile().exists()) {
+                path = libDir.toPath()
+                        .resolve(dependency.getGroupId())
+                        .resolve(dependency.getArtifactId())
+                        .resolve(dependency.getVersion())
+                        .resolve(fileName + "-relocated.jar");
+                if (!path.toFile().exists()) {
+                    continue;
+                }
+            }
+            File jarFile = path.toFile();
+            // 读取 jarFile 所有类
+            try (JarFile jar = new JarFile(jarFile)) {
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    if (entry.getName().endsWith(".class")) {
+                        String className = entry.getName()
+                                .replace("/", ".")
+                                .replace(".class", "");
+                        if (className.startsWith(prefix)) classes.add(Class.forName(className));
+                    }
+                }
+            }
+        }
+        return classes;
+    }
+
+    public static List<Class<?>> searchClasses(Dependency dependency, String prefix) throws IOException, ClassNotFoundException {
+        List<Class<?>> classes = new ArrayList<>();
+        String fileName = dependency.getArtifactId() + "-" + dependency.getVersion();
+        Path path = libDir.toPath()
+                .resolve(dependency.getGroupId())
+                .resolve(dependency.getArtifactId())
+                .resolve(dependency.getVersion())
+                .resolve(fileName + ".jar");
+        if (!path.toFile().exists()) {
+            path = libDir.toPath()
+                    .resolve(dependency.getGroupId())
+                    .resolve(dependency.getArtifactId())
+                    .resolve(dependency.getVersion())
+                    .resolve(fileName + "-relocated.jar");
+            if (!path.toFile().exists()) {
+                return classes;
+            }
+        }
+        File jarFile = path.toFile();
+        try (JarFile jar = new JarFile(jarFile)) {
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(".class")) {
+                    String className = entry.getName()
+                            .replace("/", ".")
+                            .replace(".class", "");
+                    if (className.startsWith(prefix)) classes.add(Class.forName(className));
+                }
+            }
+        }
+        return classes;
     }
 
     public static void loadDependencies(Collection<Dependency> dependencies) throws Throwable {

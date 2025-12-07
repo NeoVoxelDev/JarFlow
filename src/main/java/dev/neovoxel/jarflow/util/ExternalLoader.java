@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class ExternalLoader {
+public class ExternalLoader implements Loader {
 
     private static MethodHandle addURLMethodHandle;
 
@@ -134,7 +134,7 @@ public class ExternalLoader {
         throw new RuntimeException("Cannot get privileged method handle.");
     }
 
-    public static void load(File file) throws Throwable {
+    public void load(File file) throws Throwable {
         addURLMethodHandle.invokeWithArguments(file.toURI().toURL());
     }
 

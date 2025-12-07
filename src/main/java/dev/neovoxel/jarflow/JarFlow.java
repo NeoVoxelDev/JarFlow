@@ -4,7 +4,9 @@ import dev.neovoxel.jarflow.dependency.Dependency;
 import dev.neovoxel.jarflow.repository.Repository;
 import dev.neovoxel.jarflow.util.DependencyDownloader;
 import dev.neovoxel.jarflow.util.ExternalLoader;
+import dev.neovoxel.jarflow.util.Loader;
 import dev.neovoxel.jarflow.util.MetadataParser;
+import lombok.Getter;
 import lombok.Setter;
 import me.lucko.jarrelocator.JarRelocator;
 import org.slf4j.Logger;
@@ -30,6 +32,10 @@ public class JarFlow {
 
     @Setter
     private static File libDir = new File("libs");
+
+    @Setter
+    @Getter
+    private static Loader loader = new ExternalLoader();
 
     private static Logger logger = LoggerFactory.getLogger("JarFlow");
 
@@ -67,12 +73,12 @@ public class JarFlow {
                     .resolve(fileName + ".jar");
             if (!hasDownloaded(dependency2)) DependencyDownloader.download(JarFlow.dependencies.get(dependency2), dependency2, libDir, threadCount);
             if (dependency.getRelocations().isEmpty()) {
-                ExternalLoader.load(path.toFile());
+                loader.load(path.toFile());
             } else {
                 fileName += "-relocated.jar";
                 JarRelocator jarRelocator = new JarRelocator(path.toFile(), path.resolve("../" + fileName).toFile(), dependency.getRelocations());
                 jarRelocator.run();
-                ExternalLoader.load(path.resolve("../" + fileName).toFile());
+                loader.load(path.resolve("../" + fileName).toFile());
             }
             loaded.add(dependency2);
         }
@@ -164,12 +170,12 @@ public class JarFlow {
                     .resolve(fileName + ".jar");
             if (!hasDownloaded(dependency)) DependencyDownloader.download(JarFlow.dependencies.get(dependency), dependency, libDir, threadCount);
             if (dependency.getRelocations().isEmpty()) {
-                ExternalLoader.load(path.toFile());
+                loader.load(path.toFile());
             } else {
                 fileName += "-relocated.jar";
                 JarRelocator jarRelocator = new JarRelocator(path.toFile(), path.resolve("../" + fileName).toFile(), dependency.getRelocations());
                 jarRelocator.run();
-                ExternalLoader.load(path.resolve("../" + fileName).toFile());
+                loader.load(path.resolve("../" + fileName).toFile());
             }
             loaded.add(dependency);
         }

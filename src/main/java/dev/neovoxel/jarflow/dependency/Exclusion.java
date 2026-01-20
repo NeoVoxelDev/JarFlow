@@ -1,6 +1,5 @@
-package dev.neovoxel.jarflow.util;
+package dev.neovoxel.jarflow.dependency;
 
-import dev.neovoxel.jarflow.dependency.Dependency;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 

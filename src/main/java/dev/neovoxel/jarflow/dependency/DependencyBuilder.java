@@ -1,6 +1,5 @@
 package dev.neovoxel.jarflow.dependency;
 
-import dev.neovoxel.jarflow.util.Exclusion;
 import me.lucko.jarrelocator.Relocation;
 
 import java.util.ArrayList;
@@ -10,8 +9,8 @@ public class DependencyBuilder {
     private String groupId;
     private String artifactId;
     private String version;
-    private List<Relocation> relocations = new ArrayList<>();
-    private List<Exclusion> exclusions = new ArrayList<>();
+    private final List<Relocation> relocations = new ArrayList<>();
+    private final List<Exclusion> exclusions = new ArrayList<>();
 
     protected DependencyBuilder() {
 
@@ -58,6 +57,6 @@ public class DependencyBuilder {
     }
 
     public Dependency build() {
-        return new Dependency(groupId, artifactId, version, relocations, exclusions);
+        return new Dependency(groupId, artifactId, version, relocations, exclusions, new ArrayList<>());
     }
 }

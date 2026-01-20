@@ -1,4 +1,4 @@
-package dev.neovoxel.jarflow.util;
+package dev.neovoxel.jarflow.remote;
 
 import dev.neovoxel.jarflow.dependency.Dependency;
 import dev.neovoxel.jarflow.repository.Repository;
@@ -20,17 +20,14 @@ public class DependencyDownloader {
 
     private static final Logger logger = LoggerFactory.getLogger("JarFlow Downloader");
 
-    public static void download(Repository repository, Dependency dependency, File libDirPath, int threadNum) throws IOException, InterruptedException {
-        String downloadUrl = repository.getUrl() + dependency.getGroupId().replace(".", "/") +
-                "/" + dependency.getArtifactId() + "/" + dependency.getVersion() + "/" +
-                dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar";
+    public static void download(String url, Dependency dependency, File libDirPath, int threadNum) throws IOException, InterruptedException {
         libDirPath.mkdirs();
         Path path = libDirPath.toPath()
                 .resolve(dependency.getGroupId())
                 .resolve(dependency.getArtifactId())
                 .resolve(dependency.getVersion());
         path.toFile().mkdirs();
-        downloadWithMultipleThreads(downloadUrl, path.resolve(dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar").toString(), threadNum);
+        downloadWithMultipleThreads(url, path.resolve(dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar").toString(), threadNum);
     }
 
     private static void downloadWithMultipleThreads(String fileUrl, String savePath, int threadNum)

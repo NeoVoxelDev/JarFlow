@@ -39,4 +39,8 @@ public class Repository {
     public static Repository jitPack() {
         return new RepositoryBuilder().url("https://jitpack.io/").name("JitPack").build();
     }
+
+    public static Repository from(org.apache.maven.model.Repository repository) {
+        return new RepositoryBuilder().url(repository.getUrl()).name(repository.getName()).build();
+    }
 }
